@@ -1,0 +1,6 @@
+[build]
+bin = "tmp/main.exe"
+cmd = "templ generate && go build -o ./tmp/main.exe ."
+delay = 1000
+exclude_regex = ["_test.go", "_templ.go"]
+exclude_dir = ["tmp"]
