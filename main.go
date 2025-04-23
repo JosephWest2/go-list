@@ -11,7 +11,6 @@ import (
 	"josephwest2.com/go-list/handlers"
 )
 
-
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -31,6 +30,8 @@ func main() {
 	mux.HandleFunc("GET /todo-list", handlers.TodoListPageHandler)
 	mux.HandleFunc("GET /login", handlers.LoginPageHandler)
 	mux.HandleFunc("POST /login", handlers.LoginHandler(dbpool))
+	mux.HandleFunc("GET /register", handlers.RegisterPageHandler)
+	mux.HandleFunc("POST /register", handlers.RegisterHandler(dbpool))
 	mux.HandleFunc("GET /logout", handlers.LogoutPageHandler)
 	mux.Handle("GET /web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
 	http.ListenAndServe(":3000", mux)

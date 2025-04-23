@@ -5,10 +5,9 @@
 package sqlc
 
 type Item struct {
-	ID      int32
-	UserID  int32
-	Value   string
-	Foriegn interface{}
+	ID     int32
+	UserID int32
+	Value  string
 }
 
 type User struct {

@@ -2,4 +2,74 @@ package components
 
 templ RegisterPage() {
     <h1>Register Page</h1>
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" minlength="3" maxlength="50">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" minlength="8" maxlength="50">
+        <button onclick="Register()">Register</button>
+    </div>
+    <script>
+        async function Register() {
+            if (!ValidateUsername()) {
+                return;
+            }
+            if (!ValidatePassword()) {
+                return;
+            }
+            const usernameElement = document.getElementById("username");
+            const usernameValue = usernameElement.value;
+            const passwordElement = document.getElementById("password");
+            const passwordValue = passwordElement.value;
+
+            const formData = new FormData();
+            formData.append("username", usernameValue);
+            formData.append("password", passwordValue);
+
+            const response = await fetch("/register", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert("Sucessfully registered");
+                window.location.href = "/login";
+            } else {
+                alert("Failed to register:", response.statusText)
+            }
+        }
+
+        function ValidateUsername() {
+            const usernameElement = document.getElementById("username");
+            const usernameValue = usernameElement.value;
+            let res = true;
+            if (usernameValue.length < 3 || usernameValue.length > 50) {
+                usernameElement.setCustomValidity("Username must be between 3 and 50 characters");
+                res = false;
+            }
+            usernameElement.reportValidity();
+            return res;
+        }
+
+        function ValidatePassword() {
+            const passwordElement = document.getElementById("password");
+            const passwordValue = passwordElement.value;
+            let res = true;
+            if (passwordValue.length < 8 || passwordValue.length > 50) {
+                passwordElement.setCustomValidity("Password must be between 8 and 50 characters");
+                res = false;
+            } else if (!passwordValue.match(/[a-z]/)) {
+                passwordElement.setCustomValidity("Password must contain at least one lowercase letter");
+                res = false;
+            } else if (!passwordValue.match(/[A-Z]/)) {
+                passwordElement.setCustomValidity("Password must contain at least one uppercase letter");
+                res = false;
+            } else if (!passwordValue.match(/[0-9]/)) {
+                passwordElement.setCustomValidity("Password must contain at least one digit");
+                res = false;
+            }
+            passwordElement.reportValidity();
+            return res;
+        }
+    </script>
 }

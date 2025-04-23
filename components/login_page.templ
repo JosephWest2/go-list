@@ -2,4 +2,30 @@ package components
 
 templ LoginPage() {
     <h1>Login Page</h1>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username">
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password">
+    <button onclick="Login()">Login</button>
+    <script>
+        async function Login() {
+            const usernameElement = document.getElementById("username");
+            const usernameValue = usernameElement.value;
+            const passwordElement = document.getElementById("password");
+            const passwordValue = passwordElement.value;
+            const formData = new FormData();
+            formData.append("username", usernameValue);
+            formData.append("password", passwordValue);
+            const response = await fetch("/login", {
+                method: "POST",
+                body: formData,
+            });
+            if (response.ok) {
+                alert("Sucessfully logged in");
+                window.location.href = "/todo-list";
+            } else {
+                alert("Failed to login:", response.statusText)
+            }
+        }
+    </script>
 }

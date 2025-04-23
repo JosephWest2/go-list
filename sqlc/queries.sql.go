@@ -12,7 +12,7 @@ import (
 )
 
 const createItem = `-- name: CreateItem :one
-INSERT INTO items (user_id, value) VALUES ($1, $2) RETURNING id, user_id, value, foriegn
+INSERT INTO items (user_id, value) VALUES ($1, $2) RETURNING id, user_id, value
 `
 
 type CreateItemParams struct {
@@ -23,12 +23,7 @@ type CreateItemParams struct {
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, error) {
 	row := q.db.QueryRow(ctx, createItem, arg.UserID, arg.Value)
 	var i Item
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Value,
-		&i.Foriegn,
-	)
+	err := row.Scan(&i.ID, &i.UserID, &i.Value)
 	return i, err
 }
 
@@ -49,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getItemsContaining = `-- name: GetItemsContaining :many
-SELECT id, user_id, value, foriegn FROM items WHERE value LIKE '%' || $1 || '%' and user_id = $2
+SELECT id, user_id, value FROM items WHERE value LIKE '%' || $1 || '%' and user_id = $2
 `
 
 type GetItemsContainingParams struct {
@@ -66,12 +61,7 @@ func (q *Queries) GetItemsContaining(ctx context.Context, arg GetItemsContaining
 	var items []Item
 	for rows.Next() {
 		var i Item
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Value,
-			&i.Foriegn,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.UserID, &i.Value); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -94,7 +84,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const getUserItems = `-- name: GetUserItems :many
-SELECT id, user_id, value, foriegn FROM items WHERE user_id = $1
+SELECT id, user_id, value FROM items WHERE user_id = $1
 `
 
 func (q *Queries) GetUserItems(ctx context.Context, userID int32) ([]Item, error) {
@@ -106,12 +96,7 @@ func (q *Queries) GetUserItems(ctx context.Context, userID int32) ([]Item, error
 	var items []Item
 	for rows.Next() {
 		var i Item
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Value,
-			&i.Foriegn,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.UserID, &i.Value); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

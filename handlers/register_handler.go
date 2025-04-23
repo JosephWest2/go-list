@@ -3,10 +3,12 @@ package handlers
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/crypto/bcrypt"
 	"josephwest2.com/go-list/sqlc"
 )
 
@@ -35,6 +37,22 @@ func RegisterHandler(dbpool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		q := sqlc.New(dbpool)
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(passwordInput), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatal("failed to hash password: ", err.Error())
+		}
+
+		_, err = q.CreateUser(context.Background(), sqlc.CreateUserParams{
+			Username:     usernameInput,
+			PasswordHash: string(passwordHash),
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			println("failed to create user: ", err.Error())
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Successfully registered"))
 	}
@@ -43,6 +61,9 @@ func RegisterHandler(dbpool *pgxpool.Pool) http.HandlerFunc {
 func ValidateUsername(username string, dbpool *pgxpool.Pool) error {
 	if len(username) < 3 {
 		return errors.New("username must be at least 3 characters long")
+	}
+	if len(username) > 50 {
+		return errors.New("username must 50 characters long or less")
 	}
 	q := sqlc.New(dbpool)
 	_, err := q.GetUser(context.Background(), username)
@@ -55,6 +76,9 @@ func ValidateUsername(username string, dbpool *pgxpool.Pool) error {
 func ValidatePassword(password string, dbpool *pgxpool.Pool) error {
 	if len(password) < 8 {
 		return errors.New("password must be at least 8 characters long")
+	}
+	if len(password) > 50 {
+		return errors.New("password must 50 characters long or less")
 	}
 	if !strings.ContainsAny(password, "0123456789") {
 		return errors.New("password must contain at least one number")
