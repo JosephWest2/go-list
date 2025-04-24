@@ -9,10 +9,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
+	"josephwest2.com/go-list/app"
 	"josephwest2.com/go-list/sqlc"
 )
 
-func RegisterHandler(dbpool *pgxpool.Pool) http.HandlerFunc {
+func RegisterHandler(app app.AppContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		usernameInput := r.FormValue("username")
 		if usernameInput == "" {
@@ -24,20 +25,20 @@ func RegisterHandler(dbpool *pgxpool.Pool) http.HandlerFunc {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		err := ValidateUsername(usernameInput, dbpool)
+		err := ValidateUsername(usernameInput, app.DBpool)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		err = ValidatePassword(passwordInput, dbpool)
+		err = ValidatePassword(passwordInput, app.DBpool)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
 		}
 
-		q := sqlc.New(dbpool)
+		q := sqlc.New(app.DBpool)
 		passwordHash, err := bcrypt.GenerateFromPassword([]byte(passwordInput), bcrypt.DefaultCost)
 		if err != nil {
 			log.Fatal("failed to hash password: ", err.Error())
