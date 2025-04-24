@@ -10,8 +10,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 	"josephwest2.com/go-list/app"
+	"josephwest2.com/go-list/components"
 	"josephwest2.com/go-list/sqlc"
 )
+
+func RegisterPageHandler(w http.ResponseWriter, r *http.Request) {
+	RenderPage(components.RegisterPage(), w)
+}
 
 func RegisterHandler(app app.AppContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -9,8 +9,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"josephwest2.com/go-list/app"
+	"josephwest2.com/go-list/components"
 	"josephwest2.com/go-list/sqlc"
 )
+
+func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
+	RenderPage(components.LoginPage(), w)
+}
+
 
 func LoginHandler(appContext app.AppContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +44,7 @@ func LoginHandler(appContext app.AppContext) http.HandlerFunc {
 			return
 		}
 		claims := app.Claims{
-			Username: usernameInput,
+			UserID: int(user.ID),
 			RegisteredClaims: jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
 			},

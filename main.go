@@ -46,12 +46,20 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", handlers.IndexPageHandler)
+
 	mux.HandleFunc("GET /todo-list", handlers.TodoListPageHandler(app))
+	mux.HandleFunc("POST /todo-list", handlers.CreateTodoListItemHandler(app))
+	mux.HandleFunc("DELETE /todo-list/{id}", handlers.DeleteTodoListItemHandler(app))
+
 	mux.HandleFunc("GET /login", handlers.LoginPageHandler)
 	mux.HandleFunc("POST /login", handlers.LoginHandler(app))
+
 	mux.HandleFunc("GET /register", handlers.RegisterPageHandler)
 	mux.HandleFunc("POST /register", handlers.RegisterHandler(app))
+
 	mux.HandleFunc("GET /logout", handlers.LogoutPageHandler)
+
 	mux.Handle("GET /web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
+
 	http.ListenAndServe(":3000", mux)
 }

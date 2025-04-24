@@ -1,5 +1,55 @@
 package components
 
-templ TodoListPage() {
+import "josephwest2.com/go-list/sqlc"
+import "strconv"
+
+templ TodoListPage(items []sqlc.Item) {
     <h1>Todo List Page</h1>
+    <label for="new-item">New Item:</label>
+    <input type="text" id="new-item" name="new-item">
+    <button id="create-item" onclick="CreateItem()">Create</button>
+    <ul id="item-list">
+    for _, item := range items {
+        <li data-item-id={strconv.FormatInt(int64(item.ID), 10)}><p>{item.Value}</p><button onclick={templ.JSFuncCall("DeleteItem", item.ID)}>Delete</button></li>
+    }
+    </ul>
+
+    <script>
+        async function CreateItem() {
+            const inputElement = document.getElementById("new-item");
+            const inputValue = inputElement.value;
+            const formData = new FormData();
+            formData.append("value", inputValue);
+            const response = await fetch("/todo-list", {
+                method: "POST",
+                body: formData
+            }) 
+            if (!response.ok) {
+                alert("Failed to create item:", response.statusText)
+                return
+            } 
+            const data = await response.json();
+            const p = document.createElement("p");
+            const li = document.createElement("li");
+            const button = document.createElement("button");
+            p.textContent = inputValue;
+            button.textContent = "Delete";
+            button.setAttribute("onclick", `DeleteItem(${data.id})`);
+            li.setAttribute("data-item-id", data.id);
+            li.appendChild(p);
+            li.appendChild(button);
+            document.getElementById("item-list").appendChild(li);
+        }
+
+        async function DeleteItem(id) {
+            const response = await fetch("/todo-list/" + id, {
+                method: "DELETE",
+            });
+            if (!response.ok) {
+                alert("Failed to delete item:", response.statusText)
+                return
+            }
+            document.querySelector(`[data-item-id="${id}"]`).remove();
+        }
+    </script>
 }

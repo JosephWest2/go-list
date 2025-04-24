@@ -43,6 +43,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteItem = `-- name: DeleteItem :exec
+DELETE FROM items WHERE id = $1
+`
+
+func (q *Queries) DeleteItem(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteItem, id)
+	return err
+}
+
+const getItem = `-- name: GetItem :one
+SELECT id, user_id, value FROM items WHERE id = $1
+`
+
+func (q *Queries) GetItem(ctx context.Context, id int32) (Item, error) {
+	row := q.db.QueryRow(ctx, getItem, id)
+	var i Item
+	err := row.Scan(&i.ID, &i.UserID, &i.Value)
+	return i, err
+}
+
 const getItemsContaining = `-- name: GetItemsContaining :many
 SELECT id, user_id, value FROM items WHERE value LIKE '%' || $1 || '%' and user_id = $2
 `

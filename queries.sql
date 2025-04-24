@@ -12,3 +12,9 @@ INSERT INTO items (user_id, value) VALUES ($1, $2) RETURNING *;
 
 -- name: GetItemsContaining :many
 SELECT * FROM items WHERE value LIKE '%' || $1 || '%' and user_id = $2;
+
+-- name: DeleteItem :exec
+DELETE FROM items WHERE id = $1;
+
+-- name: GetItem :one
+SELECT * FROM items WHERE id = $1;
