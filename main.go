@@ -12,9 +12,17 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Failed to load .env")
+	isDev := os.Getenv("GO_LIST_IS_DEV") == "true"
+	if isDev {
+		err := godotenv.Load(".dev.env")
+		if err != nil {
+			log.Fatal("Failed to load .dev.env")
+		}
+	} else {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("Failed to load .env")
+		}
 	}
 	postgresConnectionString := os.Getenv("POSTGRES_CONNECTION_STRING")
 	if postgresConnectionString == "" {
